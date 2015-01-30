@@ -8,10 +8,10 @@ CC            = gcc
 CXX           = g++
 DEFINES       = 
 CFLAGS        = -m64 -pipe -O3 $(DEFINES)
-CXXFLAGS      = -m64 -pipe -O3 $(DEFINES)
+CXXFLAGS      = -m64 -pipe -std=c++11 -ggdb -rdynamic -O1 $(DEFINES)
 INCPATH       = -I. -I/usr/include
 LINK          = g++
-LFLAGS        = -m64
+LFLAGS        = -m64 -g
 LIBS          = $(SUBLIBS)    
 AR            = ar cqs
 RANLIB        = 

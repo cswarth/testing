@@ -33,6 +33,7 @@ float halfLength;
 float maxSpan;
 extern float defaultBranchLength;
 
+
 Node::~Node()
 {
 
@@ -106,8 +107,16 @@ Node::Node(string t)
 
     float tot = subDistances[0]+subDistances[1];
 
-    char num[10];
-    sprintf(num,"%.5f",tot);
+    // convert float to string without overflow
+    std::ostringstream buffer;
+    buffer.setf(std::ios_base::fixed, std::ios_base::floatfield);
+    buffer.precision(5);
+    buffer << tot;
+    std::string num = buffer.str();
+
+    // ignorant code that causes buffer overflow
+    // char num[10];
+    // sprintf(num,"%.5f",tot);
 
     revTrees[0] = subTrees[1]+":"+num;
     revTrees[1] = subTrees[0]+":"+num;
@@ -169,10 +178,23 @@ Node::Node(string t,Node* p,int branch)
         subDistances[0] = abs(subDistances[0]);
         subDistances[1] = abs(subDistances[1]);
 
-        char num0[10];
-        sprintf(num0,"%.5f",subDistances[0]);
-        char num1[10];
-        sprintf(num1,"%.5f",subDistances[1]);
+	// convert float to string without overflow
+	std::ostringstream buffer;
+	buffer.setf(std::ios_base::fixed, std::ios_base::floatfield);
+	buffer.precision(5);
+
+	buffer << subDistances[0];
+	std::string num0 = buffer.str();
+
+	buffer.str("");   // clear the stream
+	buffer << subDistances[1];
+	std::string num1 = buffer.str();
+
+	// ignorant code that causes buffer overflow
+        // char num0[10];
+        // sprintf(num0,"%.5f",subDistances[0]);
+        // char num1[10];
+        // sprintf(num1,"%.5f",subDistances[1]);
 
         revTrees[0] = "("+parent->revTrees[branch]+","+subTrees[1]+":"+num1+"):"+num0;
         revTrees[1] = "("+parent->revTrees[branch]+","+subTrees[0]+":"+num0+"):"+num1;
@@ -208,12 +230,14 @@ void Node::findMiddlePoint()
         float b0 = halfLength-child0->maxLength;
         float b1 = subDistances[0]+subDistances[1]-b0;
 
-        char num0[10];
-        sprintf(num0,"%.5f",b0);
-        char num1[10];
-        sprintf(num1,"%.5f",b1);
-
-        mpTree = "("+child0->tree+":"+num0+","+child1->tree+":"+num1+");";
+	// stream buffer replaces buggy string conversion code.
+	std::ostringstream buf;
+	buf.setf(std::ios_base::fixed, std::ios_base::floatfield);
+	buf.precision(5);
+	buf <<  "(" << child0->tree << ":" << b0 << "," << child1->tree << ":" << b1 << ");";
+	mpTree = buf.str();
+	
+        // mpTree = "("+child0->tree+":"+num0+","+child1->tree+":"+num1+");";
 
         return;
     }
@@ -236,15 +260,17 @@ void Node::findMiddle(int branch)
                 float b0 = halfLength-child0->maxLength;
                 float b1 = subDistances[0]-b0;
 
-                char num0[10];
-                sprintf(num0,"%.5f",b0);
-                char num1[10];
-                sprintf(num1,"%.5f",b1);
+		// stream buffer replaces buggy string conversion code.
+		std::ostringstream buf;
+		buf.setf(std::ios_base::fixed, std::ios_base::floatfield);
+		buf.precision(5);
+		buf << "("
+		    << 	    child0->tree << ":" << b0 << ","
+		    <<      "(" << parent->revTrees[1] << "," << subTrees[1] << ":" << subDistances[1] << "):" << b1
+		    << ");";
+		mpTree = buf.str();
 
-                char num[10];
-                sprintf(num,"%.5f",subDistances[1]);
-
-                mpTree = "("+child0->tree+":"+num0+",("+parent->revTrees[1]+","+subTrees[1]+":"+num+"):"+num1+");";
+                // mpTree = "("+child0->tree+":"+num0+",("+parent->revTrees[1]+","+subTrees[1]+":"+num+"):"+num1+");";
 
                 return;
             }
@@ -255,15 +281,17 @@ void Node::findMiddle(int branch)
                 float b0 = halfLength-child1->maxLength;
                 float b1 = subDistances[1]-b0;
 
-                char num0[10];
-                sprintf(num0,"%.5f",b0);
-                char num1[10];
-                sprintf(num1,"%.5f",b1);
+		// stream buffer replaces buggy string conversion code.
+		std::ostringstream buf;
+		buf.setf(std::ios_base::fixed, std::ios_base::floatfield);
+		buf.precision(5);
+		buf << "("
+		    << 	    child1->tree << ":" << b0 << ","
+		    <<      "(" << parent->revTrees[1] << "," << subTrees[0] << ":" << subDistances[0] << "):" << b1
+		    << ");";
+		mpTree = buf.str();
 
-                char num[10];
-                sprintf(num,"%.5f",subDistances[0]);
-
-                mpTree = "("+child1->tree+":"+num0+",("+parent->revTrees[1]+","+subTrees[0]+":"+num+"):"+num1+");";
+                // mpTree = "("+child1->tree+":"+num0+",("+parent->revTrees[1]+","+subTrees[0]+":"+num+"):"+num1+");";
 
                 return;
             }
@@ -280,15 +308,17 @@ void Node::findMiddle(int branch)
                 float b0 = halfLength-child0->maxLength;
                 float b1 = subDistances[0]-b0;
 
-                char num0[10];
-                sprintf(num0,"%.5f",b0);
-                char num1[10];
-                sprintf(num1,"%.5f",b1);
+		// stream buffer replaces buggy string conversion code.
+		std::ostringstream buf;
+		buf.setf(std::ios_base::fixed, std::ios_base::floatfield);
+		buf.precision(5);
+		buf << "("
+		    << 	    child0->tree << ":" << b0 << ","
+		    <<      "(" << parent->revTrees[0] << "," << subTrees[1] << ":" << subDistances[1] << "):" << b1
+		    << ");";
+		mpTree = buf.str();
 
-                char num[10];
-                sprintf(num,"%.5f",subDistances[1]);
-
-                mpTree = "("+child0->tree+":"+num0+",("+parent->revTrees[0]+","+subTrees[1]+":"+num+"):"+num1+");";
+                //mpTree = "("+child0->tree+":"+num0+",("+parent->revTrees[0]+","+subTrees[1]+":"+num+"):"+num1+");";
 
                 return;
             }
@@ -300,15 +330,17 @@ void Node::findMiddle(int branch)
                 float b0 = halfLength-child1->maxLength;
                 float b1 = subDistances[1]-b0;
 
-                char num0[10];
-                sprintf(num0,"%.5f",b0);
-                char num1[10];
-                sprintf(num1,"%.5f",b1);
+		// stream buffer replaces buggy string conversion code.
+		std::ostringstream buf;
+		buf.setf(std::ios_base::fixed, std::ios_base::floatfield);
+		buf.precision(5);
+		buf << "("
+		    << 	    child1->tree << ":" << b0 << ","
+		    <<      "(" << parent->revTrees[0] << "," << subTrees[0] << ":" << subDistances[0] << "):" << b1
+		    << ");";
+		mpTree = buf.str();
 
-                char num[10];
-                sprintf(num,"%.5f",subDistances[0]);
-
-                mpTree = "("+child1->tree+":"+num0+",("+parent->revTrees[0]+","+subTrees[0]+":"+num+"):"+num1+");";
+                // mpTree = "("+child1->tree+":"+num0+",("+parent->revTrees[0]+","+subTrees[0]+":"+num+"):"+num1+");";
 
                 return;
             }

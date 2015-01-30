@@ -129,16 +129,23 @@ ProgressiveAlignment::ProgressiveAlignment(string treefile,string seqfile,string
         rn.buildTree(tree,&nodes);
 
         AncestralNode* root = static_cast<AncestralNode*>(nodes[rn.getRoot()]);
-        string rooted = "";
-        root->getNewickBrl(&rooted);
-        rooted.append(";");
-
-//        cout<<tree<<endl<<rooted<<endl;
 
         string name = outfile+".dnd";
-        ofstream seqout(name.c_str());
-        seqout<<rooted<<endl;
-        seqout.close();
+        ofstream seqout(name);
+	
+        root->getNewick(seqout, false, true);
+	seqout.close();
+
+//         string rooted = "";
+//         root->getNewickBrl(&rooted);
+//         rooted.append(";");
+
+// //        cout<<tree<<endl<<rooted<<endl;
+
+//         string name = outfile+".dnd";
+//         ofstream seqout(name.c_str());
+//         seqout<<rooted<<endl;
+//         seqout.close();
 
         sites->deleteMatrices();
         delete sites;
@@ -1091,14 +1098,14 @@ int ProgressiveAlignment::computeParsimonyScore(AncestralNode *root,bool isDna,i
 //            if (NOISE>=0)
 //                cout<<" - inferred events to file '"<<outname<<"'.\n";
 
-            ofstream seqout(outname.c_str());
-            string tree;
-            root->getLabelledNewick(&tree);
+            ofstream seqout(outname);
 
-            seqout<<"\nAlignment topology with node labels:\n\n"<<tree<<endl<<endl;
+            seqout <<"\nAlignment topology with node labels:\n\n";
+            root->getNewick(seqout, true, false);
+	    seqout << endl << endl;
 
             seqout<<"Inferred evolutionary events per branch:\n";
-            seqout<<alloutput.str()<<"\n";
+            seqout << alloutput.str() << "\n";
             seqout.close();
         }
     }
@@ -1112,15 +1119,21 @@ void ProgressiveAlignment::printAncestral(AncestralNode *root,string filename, b
 //    this->setAlignedSequences(root);
 //    this->reconstructAncestors(root,isDna);
 
-    string tree = "";
-    root->getLabelledNewickBrl(&tree);
-    tree += ";";
-
-    ofstream ancTre((filename+".anc.dnd").c_str());
-    ancTre<<tree<<endl;
+    ofstream ancTre(filename+".anc.dnd");
+    root->getNewick(ancTre, true, true);
+    ancTre << ';' << endl;
     ancTre.close();
 
-    ofstream ancSeq((filename+".anc.fas").c_str());
+
+    // string tree = "";
+    // root->getLabelledNewickBrl(&tree);
+    // tree += ";";
+
+    // ofstream ancTre((filename+".anc.dnd").c_str());
+    // ancTre<<tree<<endl;
+    // ancTre.close();
+
+    ofstream ancSeq(filename+".anc.fas");
 
     vector<string> anms;
     root->getNames(&anms);
@@ -1133,7 +1146,7 @@ void ProgressiveAlignment::printAncestral(AncestralNode *root,string filename, b
     vector<string>::iterator si = aseqs.begin();
 
     for (; ni!=anms.end(); si++,ni++)
-        ancSeq<<">"<<*ni<<endl<<*si<<endl;
+        ancSeq << ">" << *ni << endl << *si << endl;
 
    return;
 }

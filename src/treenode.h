@@ -267,6 +267,8 @@ public:
     virtual void getNexusTree(std::string* tree, int *count) = 0;
     virtual void getNHXBrl(std::string* tree,int *nodeNumber) = 0;
 
+    virtual void getNewick(std::ostream& stream, bool bLabel, bool bBrl) = 0;
+
     void getCleanNewick(std::string* tree);
     virtual void getMLAncestralSeqs(std::vector<std::string>* ,std::vector<std::string>* ) {}
 
@@ -351,6 +353,7 @@ public:
 
 
     virtual bool updateInsertionSite(int i, bool has_parent) {}
+
 };
 
 #endif

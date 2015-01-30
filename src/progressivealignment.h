@@ -214,21 +214,21 @@ private:
 
     void showInfo()
     {
-        cout<<endl<<"-----------------\n"<<" PRANK v."<<version<<":\n"<<"-----------------\n\n"<<"Input for the analysis\n";
+        cerr<<endl<<"-----------------\n"<<" PRANK v."<<version<<":\n"<<"-----------------\n\n"<<"Input for the analysis\n";
 
         if (CONVERT)
         {
-            cout<<" - converting '"<<seqfile<<"' to '"<<outfile<<this->formatExtension(format)<<"'"<<endl<<endl;
+            cerr<<" - converting '"<<seqfile<<"' to '"<<outfile<<this->formatExtension(format)<<"'"<<endl<<endl;
         }
         else if (PRINTSCOREONLY)
         {
-            cout<<" - computing score for '"<<seqfile<<"' and '"<<treefile<<"'"<<endl<<endl;
+            cerr<<" - computing score for '"<<seqfile<<"' and '"<<treefile<<"'"<<endl<<endl;
             if(NOISE==0) { NOISE=-1; SCREEN = false;}
 
         }
         else if (TREEONLY)
         {
-            cout<<" - computing NJ tree for '"<<seqfile<<"'"<<endl;
+            cerr<<" - computing NJ tree for '"<<seqfile<<"'"<<endl;
             if(NOISE==0) { NOISE=-1; SCREEN = false;}
 
         }
@@ -236,40 +236,40 @@ private:
         {
             if (BACKTRANSLATE)
             {
-                cout<<" - creating a DNA alignment '"<<outfile<<this->formatExtension(format)
+                cerr<<" - creating a DNA alignment '"<<outfile<<this->formatExtension(format)
                     <<"' based on a protein alignment '"<<seqfile<<"' and DNA sequences in '"<<dnafile<<"'"<<endl<<endl;
             }
             else
             {
                 if(MERGE)
                 {
-                    cout<<" - merging alignments in '"<<seqfile1<<"' and '"<<seqfile2<<"'";
+                    cerr<<" - merging alignments in '"<<seqfile1<<"' and '"<<seqfile2<<"'";
                     if (treefile1!="" & treefile2!="")
-                        cout<<"\n - using alignment guide trees '"<<treefile1<<"' and '"<<treefile2<<"'\n";
+                        cerr<<"\n - using alignment guide trees '"<<treefile1<<"' and '"<<treefile2<<"'\n";
                     else
-                        cout<<"\n - using inferred alignment guide trees\n";
+                        cerr<<"\n - using inferred alignment guide trees\n";
                 }
                 else
                 {
                     if(PREALIGNED)
-                        cout<<" - reading alignment '"<<seqfile<<"'";
+                        cerr<<" - reading alignment '"<<seqfile<<"'";
                     else
-                        cout<<" - aligning sequences in '"<<seqfile<<"'";
+                        cerr<<" - aligning sequences in '"<<seqfile<<"'";
                     if (treefile!="" & hmmname!="")
-                        cout<<"\n - using alignment guide tree '"<<treefile<<"'' and model '"<<hmmname<<"'\n";
+                        cerr<<"\n - using alignment guide tree '"<<treefile<<"'' and model '"<<hmmname<<"'\n";
                     else if (treefile!="" && oldtreefile!="")
-                        cout<<"\n - using alignment guide trees '"<<treefile<<"' (new) and '"<<oldtreefile<<"' (old)\n";
+                        cerr<<"\n - using alignment guide trees '"<<treefile<<"' (new) and '"<<oldtreefile<<"' (old)\n";
                     else if (treefile!="")
-                        cout<<"\n - using alignment guide tree '"<<treefile<<"'\n";
+                        cerr<<"\n - using alignment guide tree '"<<treefile<<"'\n";
                     else if (hmmname!="")
-                        cout<<"\n - using alignment model '"<<hmmname<<"'\n";
+                        cerr<<"\n - using alignment model '"<<hmmname<<"'\n";
                     else
-                        cout<<"\n - using inferred alignment guide tree\n";
+                        cerr<<"\n - using inferred alignment guide tree\n";
                 }
                 if(!FOREVER && !PREALIGNED)
-                    cout<<" - option '+F' is not used; it can be enabled with '+F'"<<endl;
+                    cerr<<" - option '+F' is not used; it can be enabled with '+F'"<<endl;
                 else if(PREALIGNED)
-                    cout<<" - option '+F' is not always compatible with '-keep'"<<endl;
+                    cerr<<" - option '+F' is not always compatible with '-keep'"<<endl;
 
                 Mafft_alignment ma;
                 bool mafftOK = ma.test_executable();
@@ -282,19 +282,19 @@ private:
 
                 if(mafftOK || exonerateOK || bppaOK)
                 {
-                    cout<<" - external tools available:\n";
+                    cerr<<" - external tools available:\n";
                     if(mafftOK)
-                        cout<<"    MAFFT for initial alignment\n";
+                        cerr<<"    MAFFT for initial alignment\n";
                     if(exonerateOK)
-                        cout<<"    Exonerate for alignment anchoring\n";
+                        cerr<<"    Exonerate for alignment anchoring\n";
                     if(bppaOK)
-                        cout<<"    BppAncestor for ancestral state reconstruction\n";
+                        cerr<<"    BppAncestor for ancestral state reconstruction\n";
                 }
-                cout<<endl;
+                cerr<<endl;
 
                 if(treefile!="" && iterations>1)
                 {
-                    cout<<"Warning: iterative search may change the guide tree. If you want to keep\n the phylogeny provided in '"<<treefile<<
+                    cerr<<"Warning: iterative search may change the guide tree. If you want to keep\n the phylogeny provided in '"<<treefile<<
                           "', please add option '-once'.\n\n";
                 }
             }

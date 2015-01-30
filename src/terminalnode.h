@@ -66,6 +66,8 @@ public:
 
     void writeNewick(std::string* tree,int* sInd);
     void writeLabelledNewick(std::string* tree,int* sInd) {writeNewick(tree,sInd);}
+    void getNewick(std::ostream& stream, bool, bool);
+    void writeNewick(std::ostream& stream, int& sInd);
     void getNewick(std::string* tree);
     void getLabelledNewickBrl(std::string* tree)
     {
@@ -121,6 +123,10 @@ public:
 
     bool updateInsertionSite(int i,bool has_parent);
 
+    friend std::ostream& operator<<(std::ostream& ost, const TerminalNode& node);
+
 };
+
+std::ostream& operator<<(std::ostream& ost, const TerminalNode& node);
 
 #endif

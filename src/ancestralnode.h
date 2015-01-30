@@ -93,6 +93,9 @@ public:
     void getLabelledNewickBrl(std::string* tree);
     void getLabelledNewick(std::string* tree);
     void getNewickBrl(std::string* tree);
+
+    void getNewick(std::ostream& stream, bool bLabel, bool bBrl);
+
     void getNexusTree(std::string* tree, int *count);
 
     void getNHXBrl(std::string* tree,int *nodeNumber);
@@ -200,6 +203,11 @@ public:
 
     bool updateInsertionSite(int i,bool has_parent);
 
+    friend std::ostream& operator<<(std::ostream& ost, const AncestralNode& node);
+
+
 };
 
-#endif
+std::ostream& operator<<(std::ostream& ost, const AncestralNode& node);
+
+#endif // ANCESTRALNODE_H

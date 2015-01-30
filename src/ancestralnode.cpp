@@ -1122,9 +1122,12 @@ void AncestralNode::writeNewick(std::string* tree,int* sInd)
     rChild->writeNewick(tree,sInd);
     *tree += + ')';
     *tree += nodeName;
-    char str[10];
-    sprintf(str,":%.5f",branchLength);
-    *tree += str;
+
+    std::ostringstream buf;
+    buf.setf(std::ios_base::fixed, std::ios_base::floatfield);
+    buf.precision(5);
+    buf << branchLength;
+    *tree += ":" + buf.str();
 
     return;
 }
@@ -1139,13 +1142,31 @@ void AncestralNode::writeLabelledNewick(std::string* tree,int* sInd)
     *tree += right_nhx_tag;
     *tree += + ')';
     *tree += nodeName;
-    char str[10];
-    sprintf(str,":%.5f",branchLength);
-    *tree += str;
+
+    std::ostringstream buf;
+    buf.setf(std::ios_base::fixed, std::ios_base::floatfield);
+    buf.precision(5);
+    buf << branchLength;
+    *tree += ":"+ buf.str();
+
     *tree += this->nhx_tag;
 
     return;
 }
+
+void AncestralNode::getNewick(std::ostream& stream, bool bLabel, bool bBrl)
+{
+    stream << "(";
+    lChild->getNewick(stream, bLabel, bBrl);
+    stream << left_nhx_tag;
+    stream << ',';
+    rChild->getNewick(stream, bLabel, bBrl);
+    stream << right_nhx_tag;
+    stream << ')';
+    if (bLabel)  stream << nodeName;
+    if (bBrl) stream << ":" << branchLength;
+}
+
 
 void AncestralNode::getNewickBrl(string* tree)
 {
@@ -1156,12 +1177,17 @@ void AncestralNode::getNewickBrl(string* tree)
     rChild->getNewickBrl(tree);
     *tree += right_nhx_tag;
     *tree += + ')';
-    char str[10];
-    sprintf(str,":%.5f",branchLength);
-    *tree += str;
+
+    std::ostringstream buf;
+    buf.setf(std::ios_base::fixed, std::ios_base::floatfield);
+    buf.precision(5);
+    buf << branchLength;
+    *tree += ":" + buf.str();
 
     return;
 }
+
+
 
 void AncestralNode::getLabelledNewickBrl(string* tree)
 {
@@ -1173,9 +1199,12 @@ void AncestralNode::getLabelledNewickBrl(string* tree)
     *tree += right_nhx_tag;
     *tree += + ')';
     *tree += nodeName;
-    char str[10];
-    sprintf(str,":%.5f",branchLength);
-    *tree += str;
+
+    std::ostringstream buf;
+    buf.setf(std::ios_base::fixed, std::ios_base::floatfield);
+    buf.precision(5);
+    buf << branchLength;
+    *tree += ":" + buf.str();
 
     return;
 }
@@ -1204,8 +1233,18 @@ void AncestralNode::getLabelledNewick(string* tree)
     *tree += right_nhx_tag;
     *tree += + ")";
     *tree += nodeName;
-    char str[10];
-    sprintf(str,":%.5f",branchLength);
+
+    std::ostringstream buf;
+    buf.setf(std::ios_base::fixed, std::ios_base::floatfield);
+    buf.precision(5);
+    buf << branchLength;
+    // this looks screwy - the original code commented out the actual
+    // append of 'str' to '*tree', but converted branchLength to a string anyway.
+    // just another example of shitty code here.
+    // to be consisten I have mimicked thisbehavior.
+//    *tree += ":" + buf.str();
+
+    // original....
 //    *tree += str;
     *tree += this->nhx_tag;
 
@@ -1231,9 +1270,12 @@ void AncestralNode::getNexusTree(std::string* tree, int *count)
     *tree += ',';
     rChild->getNexusTree(tree,count);
     *tree += + ')';
-    char str[10];
-    sprintf(str,":%.5f",branchLength);
-    *tree += str;
+
+    std::ostringstream buf;
+    buf.setf(std::ios_base::fixed, std::ios_base::floatfield);
+    buf.precision(5);
+    buf << branchLength;
+    *tree += ":" + buf.str();
 
     return;
 }
@@ -1270,9 +1312,12 @@ void AncestralNode::getNHXBrl(std::string* tree,int *nodeNumber)
     *tree += "[&&NHX:ND="+tag.str()+"]";
 
     *tree += + ')';
-    char str[10];
-    sprintf(str,":%.5f",branchLength);
-    *tree += str;
+
+    std::ostringstream buf;
+    buf.setf(std::ios_base::fixed, std::ios_base::floatfield);
+    buf.precision(5);
+    buf << branchLength;
+    *tree += ":" + buf.str();
 }
 
 void AncestralNode::getMLAncestralSeqs(vector<string>* sqs,vector<string>* nms)
@@ -2171,4 +2216,23 @@ bool AncestralNode::updateInsertionSite(int i,bool has_parent)
     {
         return false;
     }
+}
+
+
+// Experimental
+// Overload an ostream operator to output Ancestral Nodes.
+// We really need an ostream manipulator to indicate whether internal node labels
+// and branch lenghts should also be printed.  
+// The only trouble is finding a place to store some per-stream persistant state!
+std::ostream& operator<<(std::ostream& stream, const AncestralNode& node)
+{
+
+    stream << "(";
+    // stream << *static_cast<AncestorNode *>(node.lChild) << node.left_nhx_tag;
+    stream << *(static_cast<AncestralNode*>(node.lChild)) << node.left_nhx_tag;
+    stream << ',' << *(static_cast<AncestralNode*>(node.rChild)) << node.right_nhx_tag;
+    stream << ')';
+    stream << node.nodeName;
+    stream << ":" << node.branchLength;
+    return stream;
 }

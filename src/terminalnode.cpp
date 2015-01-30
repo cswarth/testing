@@ -169,6 +169,17 @@ void TerminalNode::outputXml(std::ofstream*,std::map<std::string,std::string> * 
     return;
 }
 
+void TerminalNode::writeNewick(std::ostream& stream, int& sInd)
+{
+    stream << "seq" << sInd++ << ":" << branchLength;
+}
+
+void TerminalNode::getNewick(std::ostream& stream, bool /* bLabel */, bool bBrl)
+{
+    stream << nodeName;
+    if (bBrl) stream << ":" << branchLength;
+}
+
 
 void TerminalNode::writeNewick(std::string* tree,int* sInd)
 {
@@ -272,3 +283,15 @@ bool TerminalNode::updateInsertionSite(int i,bool has_parent)
         return true;
 }
 
+
+// Experimental
+// Overload an ostream operator to output Ancestral Nodes.
+// We really need an iostream manipulator to indicate whether we want to print internal node labels
+// and branch lenghts.  The only trouble is finding a place to store the persistant state of the manipulator!
+std::ostream& operator<<(std::ostream& stream, const TerminalNode& node)
+{
+    stream << node.nodeName;
+    stream << ":" << node.branchLength;
+    return stream;
+
+}
