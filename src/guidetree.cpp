@@ -19,6 +19,7 @@
  ***************************************************************************/
 
 #include <cstdio>
+#include <sstream>
 #include "guidetree.h"
 #include "pwhirschberg.h"
 #include "pwsite.h"
@@ -158,14 +159,20 @@ void GuideTree::computeTree(vector<string>* sequences,vector<string>* names,IntM
                     cout<<'\b';
                 }
 
-                char prop[20];
-                sprintf(prop,"%i to %i",i,j);
-                message = "aligning ";
-                message += prop;
-                sprintf(prop,"%i",done*100/total);
-                message += " (";
-                message += prop;
-                message += "%)                    ";
+		
+		std::ostringstream buf;
+		buf << "aligning " << i << " to " << j 
+		    << "(" << int(done*100/total) << "%)                    ";
+		message = buf.str();
+
+                // char prop[20];
+                // sprintf(prop,"%i to %i",i,j);
+                // message = "aligning ";
+                // message += prop;
+                // sprintf(prop,"%i",done*100/total);
+                // message += " (";
+                // message += prop;
+                // message += "%)                    ";
 
                 cout<<message;
                 cout.flush();
@@ -425,17 +432,25 @@ void GuideTree::makeTree(FlMatrix* distance,vector<string>* nms)
         joinNeighbors(distance,names,newDistance,newNames,rDist,&no);
     }
 
+	
+    std::ostringstream buf;
+    buf.setf(std::ios_base::fixed, std::ios_base::floatfield);
+    buf.precision(5);
+    buf << abs(distance->g(0,0)+distance->g(0,1))/2 ;
+
     if (names[0].at(names[0].length()-1) == ')')
     {
-        char dist[10];
-        sprintf(dist,"%.5f",abs(distance->g(0,0)+distance->g(0,1)) );
-        tree = names[0].substr(0,names[0].length()-1)+','+names[1]+':'+dist+");";
+        // char dist[10];
+        // sprintf(dist,"%.5f",abs(distance->g(0,0)+distance->g(0,1)) );
+
+        tree = names[0].substr(0,names[0].length()-1)+','+names[1]+':'+buf.str()+");";
     }
     else
     {
-        char dist[10];
-        sprintf(dist,"%.5f",abs(distance->g(0,0)+distance->g(0,1))/2 );
-        tree = '('+names[0]+':'+dist+','+names[1]+':'+dist+");";
+        // char dist[10];
+        // sprintf(dist,"%.5f",abs(distance->g(0,0)+distance->g(0,1))/2 );
+
+        tree = '('+names[0]+':'+buf.str()+','+names[1]+':'+buf.str()+");";
     }
 
     delete[] names;
@@ -544,11 +559,18 @@ void GuideTree::joinNeighbors(FlMatrix* distance, string* names,FlMatrix* newDis
     {
         if (i==otu1)
         {
-            char l1[10];
-            sprintf(l1,"%.5f",abs(brl1));
-            char l2[10];
-            sprintf(l2,"%.5f",abs(brl2));
-            newNames[i] = '('+names[otu1]+':'+l1+','+names[otu2]+':'+l2+')';
+            // char l1[10];
+            // sprintf(l1,"%.5f",abs(brl1));
+            // char l2[10];
+            // sprintf(l2,"%.5f",abs(brl2));
+            // newNames[i] = '('+names[otu1]+':'+l1+','+names[otu2]+':'+l2+')';
+
+	    std::ostringstream buf;
+	    buf.setf(std::ios_base::fixed, std::ios_base::floatfield);
+	    buf.precision(5);
+	    buf << '(' << names[otu1] << ':' << abs(brl1) << ',' << names[otu2] << ':' << abs(brl2) << ')';
+            newNames[i] = buf.str();
+
 //	    cout<<*no<<" "<<'('+names[otu1]+':'+l1+','+names[otu2]+':'+l2+')'<<endl;
             continue;
         }

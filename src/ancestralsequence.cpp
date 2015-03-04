@@ -593,24 +593,28 @@ double AncestralSequence::mlCharProbAtF(int j,int i,int k)
 
 void AncestralSequence::writeSequence(string name)
 {
-    char str[10];
+    // char str[10];
     ofstream output((name+".seq").c_str());
+
+    output.setf(std::ios_base::fixed, std::ios_base::floatfield);
+    output.precision(4);
+
     FOR(i,seqLength)
     {
         if (LOGVALUES)
         {
             FOR(j,sAlpha)
             {
-                sprintf(str,"%.4f ",exp(logseqmat->g(j,i) ) );
-                output<<str;
+                // sprintf(str,"%.4f ",exp(logseqmat->g(j,i) ) );
+                output << exp(logseqmat->g(j,i)) ;
             }
         }
         else
         {
             FOR(j,sAlpha)
             {
-                sprintf(str,"%.4f ",seqmat->g(j,i) );
-                output<<str;
+                // sprintf(str,"%.4f ",seqmat->g(j,i) );
+                output << seqmat->g(j,i);
             }
         }
     }

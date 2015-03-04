@@ -19,6 +19,7 @@
  ***************************************************************************/
 #include <cstdio>
 #include <cstdlib>
+#include <sstream>
 #include "terminalnode.h"
 #include "config.h"
 
@@ -183,10 +184,16 @@ void TerminalNode::getNewick(std::ostream& stream, bool /* bLabel */, bool bBrl)
 
 void TerminalNode::writeNewick(std::string* tree,int* sInd)
 {
-    char str[25];
-    sprintf(str,"seq%i:%.5f",*sInd,branchLength);
+    // char str[25];
+    // sprintf(str,"seq%i:%.5f",*sInd,branchLength);
+
+    std::ostringstream buf;
+    buf.setf(std::ios_base::fixed, std::ios_base::floatfield);
+    buf.precision(5);
+    buf << "seq" << *sInd << ":" << branchLength;
+
     (*sInd)++;
-    *tree += str;
+    *tree += buf.str();
 
     return;
 }
@@ -194,9 +201,15 @@ void TerminalNode::writeNewick(std::string* tree,int* sInd)
 void TerminalNode::getNewickBrl(string* tree)
 {
     *tree += nodeName;
-    char str[10];
-    sprintf(str,":%.5f",branchLength);
-    *tree += str;
+    // char str[10];
+    // sprintf(str,":%.5f",branchLength);
+
+    std::ostringstream buf;
+    buf.setf(std::ios_base::fixed, std::ios_base::floatfield);
+    buf.precision(5);
+    buf << ":" << branchLength;
+
+    *tree += buf.str();
 
     return;
 }
@@ -204,9 +217,15 @@ void TerminalNode::getNewickBrl(string* tree)
 void TerminalNode::getNexusTree(std::string* tree, int *count)
 {
     *tree += itos(*count);
-    char str[10];
-    sprintf(str,":%.5f",branchLength);
-    *tree += str;
+    // char str[10];
+    // sprintf(str,":%.5f",branchLength);
+
+    std::ostringstream buf;
+    buf.setf(std::ios_base::fixed, std::ios_base::floatfield);
+    buf.precision(5);
+    buf << ":" << branchLength;
+
+    *tree += buf.str();
 
     (*count)++;
 

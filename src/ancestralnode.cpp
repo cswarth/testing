@@ -275,12 +275,15 @@ void AncestralNode::alignSequences()
 
 void AncestralNode::alignThisNode()
 {
-    char prop[20];
-    sprintf(prop,"(%i/%i)",alignedNodes,totalNodes-1);
+    // char prop[20];
+    // sprintf(prop,"(%i/%i)",alignedNodes,totalNodes-1);
 
-    currentNode = nodeName+prop;
+    std::ostringstream buf;
+    buf << "(" << alignedNodes << "/" << totalNodes-1 << ")";
+
+    currentNode = nodeName+buf.str();
     if (NOISE>0)
-        cout<<endl<<nodeName+prop+": aligning "+lChild->getNodeName()+" and "+rChild->getNodeName()<<endl;
+        cout<<endl<<nodeName+buf.str()+": aligning "+lChild->getNodeName()+" and "+rChild->getNodeName()<<endl;
 
     hmm->alignmentModel(this);
 
@@ -656,12 +659,15 @@ bool AncestralNode::readThisNode()
 
     ////////
 
-    char prop[20];
-    sprintf(prop,"(%i/%i)",alignedNodes,totalNodes-1);
+    // char prop[20];
+    // sprintf(prop,"(%i/%i)",alignedNodes,totalNodes-1);
 
-    currentNode = nodeName+prop;
+    std::ostringstream buf;
+    buf << "(" << alignedNodes << "/" << totalNodes-1 << ")";
+
+    currentNode = nodeName+buf.str();
     if (NOISE>0)
-        cout<<endl<<nodeName+prop+": reading "+lChild->getNodeName()+" and "+rChild->getNodeName()<<endl;
+        cout<<endl<<nodeName+buf.str()+": reading "+lChild->getNodeName()+" and "+rChild->getNodeName()<<endl;
 
 
     hmm->alignmentModel(this);
