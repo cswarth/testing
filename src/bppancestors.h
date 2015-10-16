@@ -31,7 +31,10 @@ class BppAncestors
 
     std::string get_temp_dir()
     {
-        std::string tmp_dir = "/tmp/";
+	// return a  cached copy if available,
+	std::string tmp_dir = getenv("TMPDIR");
+
+	// std::string tmp_dir = "/tmp/";
         if(tempdir != "")
             tmp_dir = tempdir+"/";
 

@@ -38,7 +38,8 @@ class Exonerate_reads
 
     std::string get_temp_dir()
     {
-        std::string tmp_dir = "/tmp/";
+	std::string tmp_dir = getenv("TMPDIR");
+	// std::string tmp_dir = "/tmp/";
         if(tempdir != "")
             tmp_dir = tempdir+"/";
 

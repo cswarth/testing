@@ -111,25 +111,25 @@ void BppAncestors::inferAncestors(AncestralNode *root,map<string,string> *aseqs,
         m_name.str("");
 
         f_name <<tmp_dir<<"f"<<r<<".fas";
-        ifstream f_file(f_name.str().c_str());
+        ifstream f_file(f_name.str());
 
         t_name <<tmp_dir<<"t"<<r<<".tre";
-        ifstream t_file(t_name.str().c_str());
+        ifstream t_file(t_name.str());
 
         o_name <<tmp_dir<<"o"<<r<<".fas";
-        ifstream o_file(t_name.str().c_str());
+        ifstream o_file(t_name.str());
 
         m_name <<tmp_dir<<"m"<<r<<".tre";
-        ifstream m_file(t_name.str().c_str());
+        ifstream m_file(t_name.str());
 
         if(!f_file && !t_file && !o_file && !m_file)
         {
             ofstream f_tmp;
-            f_tmp.open(f_name.str().c_str(), (ios::out) );
+            f_tmp.open(f_name.str(), (ios::out) );
             ofstream t_tmp;
-            t_tmp.open(t_name.str().c_str(), (ios::out) );
+            t_tmp.open(t_name.str(), (ios::out) );
             ofstream o_tmp;
-            o_tmp.open(o_name.str().c_str(), (ios::out) );
+            o_tmp.open(o_name.str(), (ios::out) );
 
             break;
         }
@@ -174,7 +174,7 @@ void BppAncestors::inferAncestors(AncestralNode *root,map<string,string> *aseqs,
     vector<string>::iterator ni = names.begin();
 
     ofstream f_output;
-    f_output.open( f_name.str().c_str(), (ios::out) );
+    f_output.open( f_name.str(), (ios::out) );
     int count = 0;
     map<string,string> tmp_names;
     for(;si!=sequences.end();si++,ni++)
@@ -211,7 +211,7 @@ void BppAncestors::inferAncestors(AncestralNode *root,map<string,string> *aseqs,
     tree += "[&&NHX:ND="+tag.str()+"];";
 
     ofstream t_output;
-    t_output.open( t_name.str().c_str(), (ios::out) );
+    t_output.open( t_name.str(), (ios::out) );
     t_output<<tree<<endl;
     t_output.close();
 
@@ -224,7 +224,7 @@ void BppAncestors::inferAncestors(AncestralNode *root,map<string,string> *aseqs,
     else
     {
         if(CODON)
-            command << " alphabet=Codon\\(letter=DNA,type=Standard\\) model=YN98\\(kappa=2,omega=0.5\\)";
+            command << " alphabet=Codon\\(letter=DNA,genetic_code=Standard\\) model=YN98\\(kappa=2,omega=0.5\\)";
         else
             command << " alphabet=DNA model=HKY85";
     }
@@ -288,28 +288,18 @@ void BppAncestors::inferAncestors(AncestralNode *root,map<string,string> *aseqs,
 
 void BppAncestors::delete_files(int r)
 {
-
     string tmp_dir = this->get_temp_dir();
+    std::vector<string> names = std::vector<string>{
+	static_cast<std::stringstream&>(std::stringstream() << tmp_dir<<"t"<<r<<".tre").str(),
+	static_cast<std::stringstream&>(std::stringstream() << tmp_dir<<"f"<<r<<".fas").str(),
+	static_cast<std::stringstream&>(std::stringstream() << tmp_dir<<"o"<<r<<".fas").str()
+    };
 
-    stringstream t_name;
-    t_name <<tmp_dir<<"t"<<r<<".tre";
-
-    stringstream f_name;
-    f_name <<tmp_dir<<"f"<<r<<".fas";
-
-    stringstream o_name;
-    o_name <<tmp_dir<<"o"<<r<<".fas";
-
-//    stringstream m_name;
-//    m_name <<tmp_dir<<"m"<<r<<".tre";
-
-    if ( remove( t_name.str().c_str() ) != 0 )
-        perror( "Error deleting file" );
-    if ( remove( f_name.str().c_str() ) != 0 )
-        perror( "Error deleting file");
-    if ( remove( o_name.str().c_str() ) != 0 )
-        perror( "Error deleting file");
-//    if ( remove( m_name.str().c_str() ) != 0 )
-//        perror( "Error deleting file");
-
+    for (const auto& name : names) {
+	if ( remove( name.c_str() ) != 0 ) {
+	    std::stringstream errmsg;
+	    errmsg << "Error deleting file: " << name << '\n';
+	    perror( errmsg.str().c_str() );
+	}
+    }
 }

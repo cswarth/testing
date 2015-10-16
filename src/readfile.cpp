@@ -28,6 +28,7 @@
 #include <cstdlib>
 #include <cctype>
 #include <algorithm>
+#include <stdexcept>
 
 using namespace std;
 
@@ -143,18 +144,30 @@ int ReadFile::readBppPhylip(const char* filename)
 
     if (!input)
     {
-        cout<<"Failed to open sequence file "<<filename<<". Exiting.\n\n";
-        exit(-1);
+	stringstream msg;
+        msg<<"Failed to open sequence file "<<filename<<". Exiting.\n\n";
+	throw std::runtime_error(msg.str());
     }
-    this->readBppPhylip(input);
 
-    if (names.size() == seqs.size())
-    return names.size();
-    else
-    {
-        cout<<"Reading sequence data failed. Found "<<names.size()<<" names but "<<seqs.size()<<" sequences. Exiting.\n\n";
-        exit(-1);
+    try {
+	this->readBppPhylip(input);
+
+	if (names.size() == seqs.size())
+	    return names.size();
+	else
+	{
+	    stringstream msg;
+	    msg<<"Reading sequence data failed. Found "<<names.size()<<" names but "<<seqs.size()<<" sequences. Exiting.\n\n";
+	    throw std::runtime_error(msg.str());
+	}
+    } catch (const std::runtime_error& e) {
+	stringstream msg;
+
+	// catch all runtime exceptions and add the filename to the beginning of the message.
+	msg << "filename \"" << filename << "\": " << e.what();
+	throw std::runtime_error(msg.str());
     }
+
 }
 
 
@@ -167,71 +180,84 @@ int ReadFile::readFile(const char* inputfile)
 
     if (!input)
     {
-        cout<<"Failed to open sequence file "<<inputfile<<". Exiting.\n\n";
-        exit(-1);
+	stringstream msg;
+        msg<<"Failed to open sequence file "<<inputfile<<". Exiting.\n\n";
+	throw std::runtime_error(msg.str());
+    }
+
+    try {
+	char c = input.get();
+	while (c==' ' || c=='\n')
+	{
+	    c = input.get();
+	}
+
+	if (c=='>')
+	{
+	    input.unget();
+	    this->readFasta(input);
+	}
+	else if (c=='#')
+	{
+	    input.unget();
+	    this->readNexus(input);
+	}
+	else if (isdigit( c ))
+	{
+	    input.unget();
+	    this->readPhylip(input);
+	}
+
+	else
+	{
+	    throw std::runtime_error("Input file format unrecognized. Only FASTA format supported. Exiting.");
+	}
+
+	set<string> nameset;
+	for (int i=0; i<(int)seqs.size(); i++)
+	{
+
+	    string temp = seqs.at(i);
+	    transform( temp.begin(), temp.end(), temp.begin(), (int(*)(int))toupper );
+	    seqs.at(i) = temp;
+
+	    if ((int)seqs.at(i).length()<1)
+	    {
+		stringstream msg;
+	    
+		msg << "Failed to read sequence "<< names.at(i) << ". Exiting.";
+		throw std::runtime_error(msg.str());
+	    }
+
+	    string name = names.at(i);
+	    while (nameset.find(name) != nameset.end())
+	    {
+		cout<< "Sequence name "<<name<<" is defined more than once! Adding suffix '.1'.\n";
+		names.at(i) += ".1";
+		name += ".1";
+	    }
+	    nameset.insert(name);
+	}
+
+
+	if (names.size() == seqs.size())
+	    return names.size();
+	else
+	{
+	    stringstream msg;
+	
+	    msg<<"Reading sequence data failed. Found "<<names.size()<<" names but "<<seqs.size()<<" sequences. Exiting.";
+	    throw std::runtime_error(msg.str());
+	}
+    } catch (const std::runtime_error& e) {
+	stringstream msg;
+
+	// catch all runtime exceptions and add the filename to the beginning of the message.
+	msg << "inputfile \"" << inputfile << "\": " << e.what();
+	throw std::runtime_error(msg.str());
     }
 
 
-    char c = input.get();
-    while (c==' ' || c=='\n')
-    {
-        c = input.get();
-    }
-
-    if (c=='>')
-    {
-        input.unget();
-        this->readFasta(input);
-    }
-    else if (c=='#')
-    {
-        input.unget();
-        this->readNexus(input);
-    }
-    else if (isdigit( c ))
-    {
-        input.unget();
-        this->readPhylip(input);
-    }
-
-    else
-    {
-        cout<<"Input file format unrecognized. Only FASTA format supported. Exiting.\n\n";
-        exit(-1);
-    }
-
-    set<string> nameset;
-    for (int i=0; i<(int)seqs.size(); i++)
-    {
-
-        string temp = seqs.at(i);
-        transform( temp.begin(), temp.end(), temp.begin(), (int(*)(int))toupper );
-        seqs.at(i) = temp;
-
-        if ((int)seqs.at(i).length()<1)
-        {
-            cout<<"Failed to read sequence "<<names.at(i)<<". Exiting.\n\n";
-            exit(-1);
-        }
-
-        string name = names.at(i);
-        while (nameset.find(name) != nameset.end())
-        {
-            cout<<"Sequence name "<<name<<" is defined more than once! Adding suffix '.1'.\n";
-            names.at(i) += ".1";
-            name += ".1";
-        }
-        nameset.insert(name);
-    }
-
-
-    if (names.size() == seqs.size())
-        return names.size();
-    else
-    {
-        cout<<"Reading sequence data failed. Found "<<names.size()<<" names but "<<seqs.size()<<" sequences. Exiting.\n\n";
-        exit(-1);
-    }
 }
 
 
@@ -288,8 +314,7 @@ void ReadFile::readNexus(std::istream & input)
 
     if (temp != "#NEXUS")
     {
-        cout<<"Input file starts with '#' but not with '#NEXUS'. Reading the file failed. Exiting.\n";
-        exit(-1);
+        throw std::runtime_error("Input file starts with '#' but not with '#NEXUS'. Reading the file failed. Exiting.");
     }
 
     int ntax = -1;
@@ -321,8 +346,7 @@ void ReadFile::readNexus(std::istream & input)
 
     if (ntax<1 || length<1)
     {
-        cout<<"Failed to read the dimensions of the Nexus alignment. Exiting.\n";
-        exit(-1);
+        throw std::runtime_error("Failed to read the dimensions of the Nexus alignment. Exiting.");
     }
 
     stringstream rows;
@@ -393,8 +417,7 @@ void ReadFile::readPhylip(std::istream & input)
 
     if (nseq<1 || length<1)
     {
-        cout<<"Input file starts with a digit but not with two positive digits. Reading the file failed. Exiting.\n";
-        exit(-1);
+	throw std::runtime_error("readPhylip: Input file starts with a digit but not with two positive digits. Reading the file failed. Exiting.");
     }
 
     getline(input, temp, '\n');
@@ -424,8 +447,7 @@ void ReadFile::readBppPhylip(istream & input)
 
     if (nseq<1 || length<1)
     {
-        cout<<"Input file starts with a digit but not with two positive digits. Reading the file failed. Exiting.\n";
-        exit(-1);
+	throw std::runtime_error("readBppPhylip: Input file starts with a digit but not with two positive digits. Reading the file failed. Exiting.");
     }
 
     for (int i=0; i<nseq; i++)

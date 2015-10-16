@@ -34,14 +34,23 @@ int main(int argc, char *argv[])
 {
     version = 140603;
 
-    readArguments(argc, argv);
-    int time1 = time(0);
+    try {
 
-    ProgressiveAlignment* pa = new ProgressiveAlignment(treefile,seqfile,dnafile);
-    if (NOISE>=0)
-        cout<<endl<<"Analysis done. Total time "<<(time(0)-time1)<<"s"<<endl;
+	readArguments(argc, argv);
+	int time1 = time(0);
 
-    delete pa;
+	ProgressiveAlignment* pa = new ProgressiveAlignment(treefile,seqfile,dnafile);
+	if (NOISE>=0)
+	    cout<<endl<<"Analysis done. Total time "<<(time(0)-time1)<<"s"<<endl;
+	delete pa;
+    } catch (const std::runtime_error& e) {
+	stringstream msg;
+
+	// catch all runtime exceptions and add the filename to the beginning of the message.
+	cerr << e.what();
+	exit(1);
+    }
+
     delete hmm;
 
     cout<<endl;

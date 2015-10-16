@@ -20,6 +20,8 @@
 #include <cstdlib>
 #include <string>
 #include <iostream>
+#include <sstream>
+
 #include "terminalsequence.h"
 #include "config.h"
 
@@ -68,9 +70,10 @@ TerminalSequence::TerminalSequence(string* s)
 
             if (s->size()%3!=0)
             {
-                cout<<s->size()<<" "<<*s<<endl;
-                cout<<"codon sequence length is not multiple of three!"<<endl;
-                exit(0);
+		stringstream msg;
+                msg<<s->size()<<" "<<*s<<endl;
+                msg<<"codon sequence length is not multiple of three!"<<endl;
+		throw std::runtime_error(msg.str());
             }
         }
 
